@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Calculadora de rentabilidad para vendedores online. Estima comisión, costo total, ganancia y precio mínimo de venta."
+    />
+    <title>MicroProfit</title>
+  </head>
+  <body>
+    <main class="pagina">
+      <header class="encabezado">
+        <p class="marca">MicroProfit</p>
+        <h1>Calculadora de rentabilidad</h1>
+        <p class="bajada">
+          Revisa si un producto te deja ganancia antes de publicarlo. El cálculo
+          se hace en este navegador y no se envía a ningún servidor.
+        </p>
+      </header>
+
+      <div class="contenido">
+        <form id="calculadora" class="tarjeta" novalidate>
+          <h2>Datos del producto</h2>
+
+          <label class="campo">
+            <span>Nombre del producto</span>
+            <input
+              id="nombre"
+              name="nombre"
+              type="text"
+              autocomplete="off"
+              placeholder="Ej: Polera básica"
+            />
+          </label>
+
+          <div class="rejilla">
+            <label class="campo">
+              <span>Precio de venta</span>
+              <input
+                id="precio"
+                name="precio"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="1"
+                placeholder="19990"
+              />
+            </label>
+
+            <label class="campo">
+              <span>Costo de compra</span>
+              <input
+                id="costo"
+                name="costo"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="1"
+                placeholder="8000"
+              />
+            </label>
+
+            <label class="campo">
+              <span>Costo de envío</span>
+              <input
+                id="envio"
+                name="envio"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="1"
+                placeholder="3000"
+              />
+            </label>
+
+            <label class="campo">
+              <span>Comisión de venta (%)</span>
+              <input
+                id="comision"
+                name="comision"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                max="99.99"
+                step="0.01"
+                placeholder="13"
+              />
+            </label>
+
+            <label class="campo campo-ancho">
+              <span>Otros gastos adicionales</span>
+              <input
+                id="otros"
+                name="otros"
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="1"
+                placeholder="500"
+              />
+            </label>
+          </div>
+
+          <p id="aviso" class="aviso" role="status">
+            Completa todos los campos para ver el cálculo.
+          </p>
+        </form>
+
+        <section class="tarjeta resultados" aria-live="polite">
+          <div class="resultados-cabecera">
+            <h2>Resultado</h2>
+            <p id="estado" class="estado" hidden>Ganancia</p>
+          </div>
+
+          <p id="mensaje-inicial" class="mensaje-inicial">
+            Ingresa el nombre y los costos. Los números se actualizarán solos
+            cada vez que cambies un valor.
+          </p>
+
+          <div id="bloque-resultados" hidden>
+            <p id="nombre-resultado" class="nombre-resultado"></p>
+            <dl class="lista-resultados">
+              <div>
+                <dt>Comisión de venta</dt>
+                <dd data-resultado="comision">—</dd>
+              </div>
+              <div>
+                <dt>Costo total</dt>
+                <dd data-resultado="costo-total">—</dd>
+              </div>
+              <div>
+                <dt>Ganancia neta</dt>
+                <dd data-resultado="ganancia">—</dd>
+              </div>
+              <div>
+                <dt>Margen de beneficio</dt>
+                <dd data-resultado="margen">—</dd>
+              </div>
+              <div>
+                <dt>Precio mínimo de venta</dt>
+                <dd data-resultado="equilibrio">—</dd>
+              </div>
+            </dl>
+            <p class="nota">
+              El precio mínimo es el punto de equilibrio: si vendes a ese valor,
+              no ganas ni pierdes. Los montos se muestran en pesos chilenos.
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

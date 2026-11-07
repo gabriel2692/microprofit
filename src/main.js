@@ -1,6 +1,5 @@
-import './style.css'
 
-// Cada cálculo ocurre en el navegador. No hay localStorage ni peticiones de red.
+import './style.css'
 
 const formulario = document.querySelector('#calculadora')
 const aviso = document.querySelector('#aviso')
@@ -9,6 +8,15 @@ const bloqueResultados = document.querySelector('#bloque-resultados')
 const mensajeInicial = document.querySelector('#mensaje-inicial')
 const nombreResultado = document.querySelector('#nombre-resultado')
 const estado = document.querySelector('#estado')
+
+const botones = {
+  guardar: document.querySelector('#guardar'),
+  copiar: document.querySelector('#copiar'),
+  limpiar: document.querySelector('#limpiar'),
+  borrarHistorial: document.querySelector('#borrar-historial'),
+}
+
+const listaHistorial = document.querySelector('#lista-historial')
 
 const campos = {
   nombre: document.querySelector('#nombre'),
@@ -38,6 +46,9 @@ const porcentaje = new Intl.NumberFormat('es-CL', {
   maximumFractionDigits: 1,
 })
 
+let calculoActual = null
+let historial = []
+
 function leerNumero(input) {
   const texto = input.value.trim()
   if (texto === '') return null
@@ -56,42 +67,46 @@ function leerDatos() {
 }
 
 function validar(datos) {
-  const numeros = [datos.precio, datos.costo, datos.envio, datos.comision, datos.otros]
+  const numeros = [
+    datos.precio,
+    datos.costo,
+    datos.envio,
+    datos.comision,
+    datos.otros,
+  ]
 
-  if (datos.nombre === '' || numeros.some((valor) => valor === null)) {
+  if (datos.nombre === '' || numeros.some(v => v === null)) {
     return {
       tipo: 'incompleto',
       mensaje: 'Completa todos los campos para ver el cálculo.',
     }
   }
 
-  if (numeros.some((valor) => !Number.isFinite(valor))) {
+  if (numeros.some(v => !Number.isFinite(v))) {
     return {
       tipo: 'error',
-      mensaje: 'Revisa los números: hay un valor que no se puede leer.',
+      mensaje: 'Revisa los números introducidos.',
     }
   }
 
-  if (numeros.some((valor) => valor < 0)) {
+  if (numeros.some(v => v < 0)) {
     return {
       tipo: 'error',
-      mensaje: 'Los montos y la comisión no pueden ser negativos.',
+      mensaje: 'No se permiten valores negativos.',
     }
   }
 
-  if (datos.precio === 0) {
+  if (datos.precio <= 0) {
     return {
       tipo: 'error',
-      mensaje:
-        'El precio de venta debe ser mayor que cero. Si es cero, el margen no se puede calcular.',
+      mensaje: 'El precio de venta debe ser mayor que cero.',
     }
   }
 
   if (datos.comision >= 100) {
     return {
       tipo: 'error',
-      mensaje:
-        'La comisión debe ser menor que 100%. Con 100% o más no existe un precio de equilibrio.',
+      mensaje: 'La comisión debe ser menor que 100%.',
     }
   }
 
@@ -99,14 +114,20 @@ function validar(datos) {
 }
 
 function calcular(datos) {
-  const comisionDinero = (datos.precio * datos.comision) / 100
+  const comisionDinero = datos.precio * datos.comision / 100
   const gastosFijos = datos.costo + datos.envio + datos.otros
   const costoTotal = gastosFijos + comisionDinero
   const ganancia = datos.precio - costoTotal
-  const margen = (ganancia / datos.precio) * 100
+  const margen = ganancia / datos.precio * 100
   const precioEquilibrio = gastosFijos / (1 - datos.comision / 100)
 
-  return { comisionDinero, costoTotal, ganancia, margen, precioEquilibrio }
+  return {
+    comisionDinero,
+    costoTotal,
+    ganancia,
+    margen,
+    precioEquilibrio,
+  }
 }
 
 function formatearPesos(valor) {
@@ -116,22 +137,22 @@ function formatearPesos(valor) {
 }
 
 function formatearPorcentaje(valor) {
-  const redondeado = Math.round(valor * 10) / 10
-  const visible = redondeado === 0 ? 0 : redondeado
-  return `${porcentaje.format(visible)} %`
+  return `${porcentaje.format(valor)} %`
 }
 
 function mostrarAviso(revision) {
-  const hayAviso = revision.tipo !== 'ok'
-  aviso.hidden = !hayAviso
+  aviso.hidden = revision.tipo === 'ok'
   aviso.textContent = revision.mensaje
-  aviso.className = revision.tipo === 'error' ? 'aviso aviso-error' : 'aviso'
+  aviso.className = revision.tipo === 'error'
+    ? 'aviso aviso-error'
+    : 'aviso'
 }
 
 function mostrarResultados(datos, cuentas) {
   mensajeInicial.hidden = true
   bloqueResultados.hidden = false
   estado.hidden = false
+
   nombreResultado.textContent = datos.nombre
 
   salidas.comision.textContent = formatearPesos(cuentas.comisionDinero)
@@ -140,13 +161,16 @@ function mostrarResultados(datos, cuentas) {
   salidas.margen.textContent = formatearPorcentaje(cuentas.margen)
   salidas.equilibrio.textContent = formatearPesos(cuentas.precioEquilibrio)
 
-  const gananciaVisible = Math.round(cuentas.ganancia)
-  panelResultados.classList.remove('es-ganancia', 'es-perdida', 'es-equilibrio')
+  panelResultados.classList.remove(
+    'es-ganancia',
+    'es-perdida',
+    'es-equilibrio'
+  )
 
-  if (gananciaVisible > 0) {
+  if (cuentas.ganancia > 0) {
     panelResultados.classList.add('es-ganancia')
     estado.textContent = 'Ganancia'
-  } else if (gananciaVisible < 0) {
+  } else if (cuentas.ganancia < 0) {
     panelResultados.classList.add('es-perdida')
     estado.textContent = 'Pérdida'
   } else {
@@ -155,33 +179,190 @@ function mostrarResultados(datos, cuentas) {
   }
 }
 
-function ocultarResultados(revision) {
-  mensajeInicial.hidden = false
-  mensajeInicial.textContent =
-    revision.tipo === 'error'
-      ? 'Corrige los datos del formulario para ver el resultado.'
-      : 'Ingresa el nombre y los costos. Los números se actualizarán solos cada vez que cambies un valor.'
-  bloqueResultados.hidden = true
-  estado.hidden = true
-  nombreResultado.textContent = ''
-  for (const salida of Object.values(salidas)) {
-    salida.textContent = '—'
-  }
-  panelResultados.classList.remove('es-ganancia', 'es-perdida', 'es-equilibrio')
-}
-
 function actualizar() {
   const datos = leerDatos()
   const revision = validar(datos)
+
   mostrarAviso(revision)
 
   if (revision.tipo !== 'ok') {
+    calculoActual = null
     ocultarResultados(revision)
+    actualizarBotones()
     return
   }
 
-  mostrarResultados(datos, calcular(datos))
+  calculoActual = {
+    datos,
+    cuentas: calcular(datos),
+  }
+
+  mostrarResultados(datos, calculoActual.cuentas)
+  actualizarBotones()
+}
+
+function ocultarResultados(revision) {
+  mensajeInicial.hidden = false
+  mensajeInicial.textContent = revision.tipo === 'error'
+    ? 'Corrige los datos para ver los resultados.'
+    : 'Ingresa los datos de tu producto para calcular su rentabilidad.'
+
+  bloqueResultados.hidden = true
+  estado.hidden = true
+  nombreResultado.textContent = ''
+
+  for (const salida of Object.values(salidas)) {
+    salida.textContent = '—'
+  }
+
+  panelResultados.classList.remove(
+    'es-ganancia',
+    'es-perdida',
+    'es-equilibrio'
+  )
+}
+
+function actualizarBotones() {
+  const habilitado = calculoActual !== null
+  botones.guardar.disabled = !habilitado
+  botones.copiar.disabled = !habilitado
+}
+
+function limpiarFormulario() {
+  formulario.reset()
+  calculoActual = null
+  actualizar()
+  campos.nombre.focus()
+}
+
+async function copiarResultados() {
+  if (!calculoActual) return
+
+  const { datos, cuentas } = calculoActual
+
+  const texto = [
+    `Producto: ${datos.nombre}`,
+    `Precio de venta: ${formatearPesos(datos.precio)}`,
+    `Costo total: ${formatearPesos(cuentas.costoTotal)}`,
+    `Comisión: ${formatearPesos(cuentas.comisionDinero)}`,
+    `Ganancia neta: ${formatearPesos(cuentas.ganancia)}`,
+    `Margen: ${formatearPorcentaje(cuentas.margen)}`,
+    `Precio de equilibrio: ${formatearPesos(cuentas.precioEquilibrio)}`,
+  ].join('\n')
+
+  try {
+    await navigator.clipboard.writeText(texto)
+    aviso.hidden = false
+    aviso.className = 'aviso'
+    aviso.textContent = 'Resultados copiados correctamente.'
+  } catch {
+    aviso.hidden = false
+    aviso.className = 'aviso aviso-error'
+    aviso.textContent = 'No se pudo copiar. Comprueba los permisos del navegador.'
+  }
+}
+
+function guardarCalculo() {
+  if (!calculoActual) return
+
+  const registro = {
+    id: crypto.randomUUID(),
+    ...JSON.parse(JSON.stringify(calculoActual)),
+    fecha: new Date().toLocaleString('es-CL'),
+  }
+
+  historial.unshift(registro)
+
+  if (historial.length > 30) {
+    historial.pop()
+  }
+
+  mostrarHistorial()
+  aviso.hidden = false
+  aviso.className = 'aviso'
+  aviso.textContent = 'Producto guardado en el historial.'
+}
+
+function mostrarHistorial() {
+  listaHistorial.replaceChildren()
+
+  if (historial.length === 0) {
+    const mensaje = document.createElement('p')
+    mensaje.className = 'mensaje-inicial'
+    mensaje.textContent = 'Todavía no tienes cálculos guardados.'
+    listaHistorial.append(mensaje)
+    return
+  }
+
+  historial.forEach(registro => {
+    const fila = document.createElement('article')
+    fila.className = 'registro'
+
+    const informacion = document.createElement('div')
+    const nombre = document.createElement('strong')
+    const fecha = document.createElement('small')
+    const ganancia = document.createElement('small')
+
+    nombre.textContent = registro.datos.nombre
+    fecha.textContent = registro.fecha
+    ganancia.textContent = `Ganancia: ${formatearPesos(registro.cuentas.ganancia)}`
+    ganancia.className = registro.cuentas.ganancia >= 0
+      ? 'registro-ganancia'
+      : 'registro-perdida'
+
+    informacion.append(nombre, fecha, ganancia)
+
+    const acciones = document.createElement('div')
+    acciones.className = 'registro-acciones'
+
+    const recuperar = document.createElement('button')
+    recuperar.type = 'button'
+    recuperar.textContent = 'Ver'
+    recuperar.setAttribute('aria-label', `Recuperar ${registro.datos.nombre}`)
+    recuperar.addEventListener('click', () => recuperarCalculo(registro))
+
+    const eliminar = document.createElement('button')
+    eliminar.type = 'button'
+    eliminar.textContent = 'Eliminar'
+    eliminar.setAttribute('aria-label', `Eliminar ${registro.datos.nombre}`)
+    eliminar.addEventListener('click', () => eliminarCalculo(registro.id))
+
+    acciones.append(recuperar, eliminar)
+    fila.append(informacion, acciones)
+    listaHistorial.append(fila)
+  })
+}
+
+function recuperarCalculo(registro) {
+  for (const [clave, valor] of Object.entries(registro.datos)) {
+    campos[clave].value = valor
+  }
+
+  actualizar()
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function eliminarCalculo(id) {
+  historial = historial.filter(registro => registro.id !== id)
+  mostrarHistorial()
+}
+
+function borrarHistorial() {
+  if (historial.length === 0) return
+
+  const confirmar = window.confirm('¿Quieres borrar todo el historial?')
+
+  if (confirmar) {
+    historial = []
+    mostrarHistorial()
+  }
 }
 
 formulario.addEventListener('input', actualizar)
+botones.limpiar.addEventListener('click', limpiarFormulario)
+botones.copiar.addEventListener('click', copiarResultados)
+botones.guardar.addEventListener('click', guardarCalculo)
+botones.borrarHistorial.addEventListener('click', borrarHistorial)
+
 actualizar()
+mostrarHistorial()
