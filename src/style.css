@@ -1,0 +1,275 @@
+:root {
+  --fondo: #f3f4f6;
+  --tarjeta: #ffffff;
+  --texto: #1a1d21;
+  --suave: #5e6772;
+  --linea: #e4e7eb;
+  --campo: #f7f8fa;
+  --foco: #1d4d3b;
+  --ganancia: #0d7a45;
+  --ganancia-fondo: #e7f6ee;
+  --perdida: #b42318;
+  --perdida-fondo: #fdecea;
+  --equilibrio: #3f4a57;
+  --equilibrio-fondo: #eef1f4;
+  --sombra: 0 1px 2px rgba(16, 24, 40, 0.04), 0 10px 28px rgba(16, 24, 40, 0.05);
+  --radio: 16px;
+  font-family: system-ui, "Segoe UI", Roboto, sans-serif;
+  color: var(--texto);
+  background: var(--fondo);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--fondo);
+}
+
+h1,
+h2,
+p {
+  margin: 0;
+}
+
+.pagina {
+  width: min(1040px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 28px 0 48px;
+}
+
+.encabezado {
+  max-width: 38rem;
+  margin-bottom: 24px;
+}
+
+.marca {
+  margin-bottom: 8px;
+  color: var(--foco);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+.bajada {
+  margin-top: 10px;
+  color: var(--suave);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.contenido {
+  display: grid;
+  gap: 16px;
+}
+
+.tarjeta {
+  background: var(--tarjeta);
+  border: 1px solid var(--linea);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 20px;
+}
+
+h2 {
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+  color: var(--suave);
+  font-size: 0.92rem;
+}
+
+.campo input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid var(--linea);
+  border-radius: 10px;
+  background: var(--campo);
+  color: var(--texto);
+  font: inherit;
+  font-size: 16px;
+}
+
+.campo input::placeholder {
+  color: #98a0aa;
+}
+
+.campo input:focus {
+  outline: 2px solid var(--foco);
+  outline-offset: 1px;
+  background: #fff;
+}
+
+.rejilla {
+  display: grid;
+  gap: 0 12px;
+}
+
+.aviso {
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--equilibrio-fondo);
+  color: var(--equilibrio);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.aviso-error {
+  background: var(--perdida-fondo);
+  color: var(--perdida);
+}
+
+.resultados-cabecera {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.estado {
+  margin: 0;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.mensaje-inicial,
+.nota {
+  color: var(--suave);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.mensaje-inicial {
+  margin-top: 14px;
+}
+
+.nombre-resultado {
+  margin-top: 14px;
+  font-weight: 600;
+}
+
+.lista-resultados {
+  margin: 14px 0 0;
+}
+
+.lista-resultados div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--linea);
+}
+
+.lista-resultados dt {
+  color: var(--suave);
+}
+
+.lista-resultados dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  text-align: right;
+}
+
+.nota {
+  margin-top: 8px;
+}
+
+.es-ganancia .estado,
+.es-ganancia [data-resultado="ganancia"],
+.es-ganancia [data-resultado="margen"] {
+  color: var(--ganancia);
+}
+
+.es-ganancia .estado {
+  background: var(--ganancia-fondo);
+}
+
+.es-perdida .estado,
+.es-perdida [data-resultado="ganancia"],
+.es-perdida [data-resultado="margen"] {
+  color: var(--perdida);
+}
+
+.es-perdida .estado {
+  background: var(--perdida-fondo);
+}
+
+.es-equilibrio .estado {
+  color: var(--equilibrio);
+  background: var(--equilibrio-fondo);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+@media (min-width: 720px) {
+  .pagina {
+    padding-top: 48px;
+  }
+
+  h1 {
+    font-size: 2.4rem;
+  }
+
+  .contenido {
+    grid-template-columns: 1.15fr 0.85fr;
+    align-items: start;
+    gap: 20px;
+  }
+
+  .rejilla {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .campo-ancho {
+    grid-column: 1 / -1;
+  }
+
+  .resultados {
+    position: sticky;
+    top: 20px;
+  }
+}
+
+@media (max-width: 719px) {
+  .pagina {
+    width: min(100% - 24px, 1040px);
+    padding-top: 20px;
+  }
+
+  h1 {
+    font-size: 1.7rem;
+  }
+
+  .tarjeta {
+    padding: 16px;
+  }
+}
