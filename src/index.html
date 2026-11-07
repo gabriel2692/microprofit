@@ -1,0 +1,139 @@
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f3f4f6" />
+    <meta name="description" content="Calculadora de rentabilidad para vendedores online." />
+    <title>MicroProfit | Calculadora de rentabilidad</title>
+  </head>
+  <body>
+    <main class="pagina">
+      <header class="encabezado">
+        <p class="marca">MicroProfit</p>
+        <h1>Calculadora de rentabilidad</h1>
+        <p class="bajada">
+          Descubre cuánto ganas realmente con cada producto.
+          Calcula tus costos y toma mejores decisiones.
+        </p>
+      </header>
+
+      <div class="contenido">
+        <form id="calculadora" class="tarjeta" novalidate>
+          <h2>Datos del producto</h2>
+
+          <label class="campo">
+            <span>Nombre del producto</span>
+            <input id="nombre" type="text" placeholder="Ej: Audífonos" />
+          </label>
+
+          <div class="rejilla">
+            <label class="campo">
+              <span>Precio de venta (CLP)</span>
+              <input id="precio" type="number" min="0" step="1" placeholder="30000" />
+            </label>
+
+            <label class="campo">
+              <span>Costo de compra (CLP)</span>
+              <input id="costo" type="number" min="0" step="1" placeholder="12000" />
+            </label>
+
+            <label class="campo">
+              <span>Costo de envío (CLP)</span>
+              <input id="envio" type="number" min="0" step="1" placeholder="2000" />
+            </label>
+
+            <label class="campo">
+              <span>Comisión de venta (%)</span>
+              <input id="comision" type="number" min="0" max="99.99" step="0.01" placeholder="10" />
+            </label>
+
+            <label class="campo campo-ancho">
+              <span>Otros gastos (CLP)</span>
+              <input id="otros" type="number" min="0" step="1" placeholder="1000" />
+            </label>
+          </div>
+
+          <p id="aviso" class="aviso" role="status">
+            Completa todos los campos para ver el cálculo.
+          </p>
+
+          <div class="acciones">
+            <button id="guardar" type="button" class="boton boton-principal" disabled>
+              Guardar cálculo
+            </button>
+            <button id="copiar" type="button" class="boton boton-secundario" disabled>
+              Copiar resultados
+            </button>
+            <button id="limpiar" type="button" class="boton boton-texto">
+              Limpiar formulario
+            </button>
+          </div>
+        </form>
+
+        <section class="tarjeta resultados" aria-live="polite">
+          <div class="resultados-cabecera">
+            <h2>Resultado</h2>
+            <span id="estado" class="estado" hidden>Ganancia</span>
+          </div>
+
+          <p id="mensaje-inicial" class="mensaje-inicial">
+            Ingresa los datos de tu producto para calcular su rentabilidad.
+          </p>
+
+          <div id="bloque-resultados" hidden>
+            <p id="nombre-resultado" class="nombre-resultado"></p>
+
+            <div class="ganancia-destacada">
+              <span>Ganancia neta</span>
+              <strong data-resultado="ganancia">—</strong>
+            </div>
+
+            <dl class="lista-resultados">
+              <div>
+                <dt>Comisión de venta</dt>
+                <dd data-resultado="comision">—</dd>
+              </div>
+              <div>
+                <dt>Costo total</dt>
+                <dd data-resultado="costo-total">—</dd>
+              </div>
+              <div>
+                <dt>Margen de beneficio</dt>
+                <dd data-resultado="margen">—</dd>
+              </div>
+              <div>
+                <dt>Precio de equilibrio</dt>
+                <dd data-resultado="equilibrio">—</dd>
+              </div>
+            </dl>
+
+            <p class="nota">
+              Los cálculos se realizan en tu navegador.
+              Los valores están expresados en pesos chilenos.
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <section class="tarjeta historial">
+        <div class="resultados-cabecera">
+          <div>
+            <h2>Historial de cálculos</h2>
+            <p class="subtitulo">Productos guardados durante esta sesión.</p>
+          </div>
+          <button id="borrar-historial" type="button" class="boton boton-texto">
+            Borrar historial
+          </button>
+        </div>
+
+        <div id="lista-historial" class="lista-historial">
+          <p class="mensaje-inicial">Todavía no tienes cálculos guardados.</p>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
